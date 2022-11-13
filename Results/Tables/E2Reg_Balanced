@@ -1,0 +1,55 @@
+
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: mié, nov 02, 2022 - 23:45:51
+\begin{table}[!htbp] \centering 
+  \caption{Experiment 2: Anger levels by treatment and EchoChamber membership and digital citizenship} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{1pt}}lcccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{4}{c}{Anger levels} \\ 
+\cline{2-5} 
+\\[-1.8ex] & \multicolumn{4}{c}{Modelo 1} \\ 
+\\[-1.8ex] & \textit{OLS} & \textit{normal} & \textit{OLS} & \textit{normal} \\ 
+\\[-1.8ex] & (1) & (2) & (3) & (4)\\ 
+\hline \\[-1.8ex] 
+ T1: Like-Minded & $-$0.121 & $-$0.121 & $-$0.318 & $-$0.318 \\ 
+  & (0.150) & (0.150) & (0.264) & (0.264) \\ 
+  & & & & \\ 
+ T2; Opposite & 0.577$^{***}$ & 0.577$^{***}$ & 0.748$^{**}$ & 0.748$^{**}$ \\ 
+  & (0.152) & (0.152) & (0.260) & (0.260) \\ 
+  & & & & \\ 
+ High Echo Chamber + T1 &  &  & 0.134 & 0.134 \\ 
+  &  &  & (0.227) & (0.227) \\ 
+  & & & & \\ 
+ High Echo Chamber + T2 &  &  & 0.372 & 0.372 \\ 
+  &  &  & (0.230) & (0.230) \\ 
+  & & & & \\ 
+ High Digital Citizenship + T1 &  &  & 0.040 & 0.040 \\ 
+  &  &  & (0.316) & (0.316) \\ 
+  & & & & \\ 
+ High Digital Citizenship + T2 &  &  & 0.454 & 0.454 \\ 
+  &  &  & (0.320) & (0.320) \\ 
+  & & & & \\ 
+ Constant &  &  & 0.208 & 0.208 \\ 
+  &  &  & (0.330) & (0.330) \\ 
+  & & & & \\ 
+ E1Treat\_Opuesto:DigitIndex &  &  & $-$0.684$^{*}$ & $-$0.684$^{*}$ \\ 
+  &  &  & (0.328) & (0.328) \\ 
+  & & & & \\ 
+ Constant & 4.600$^{***}$ & 4.600$^{***}$ & 4.314$^{***}$ & 4.314$^{***}$ \\ 
+  & (0.107) & (0.107) & (0.177) & (0.177) \\ 
+  & & & & \\ 
+\hline \\[-1.8ex] 
+Observations & 690 & 690 & 690 & 690 \\ 
+R$^{2}$ & 0.034 &  & 0.061 &  \\ 
+Adjusted R$^{2}$ & 0.031 &  & 0.050 &  \\ 
+Log Likelihood &  & $-$1,311.735 &  & $-$1,301.856 \\ 
+Akaike Inf. Crit. &  & 2,629.470 &  & 2,621.711 \\ 
+Residual Std. Error & 1.621 (df = 687) &  & 1.605 (df = 681) &  \\ 
+F Statistic & 12.108$^{***}$ (df = 2; 687) &  & 5.561$^{***}$ (df = 8; 681) &  \\ 
+\hline 
+\hline \\[-1.8ex] 
+Significance levels & \multicolumn{4}{r}{$^{*}$p$<$0.05; $^{**}$p$<$0.01; $^{***}$p$<$0.001} \\ 
+\end{tabular} 
+\end{table} 
