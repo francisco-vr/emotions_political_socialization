@@ -19,7 +19,7 @@ ipak <- function(pkg){
 packages <- c("tidyverse","dplyr","haven","ggplot2","readxl","summarytools", "patchwork","stringr",
               "tidyr","kableExtra","psych", "MASS", "foreign", "data.table","gtools","lubridate","AER",
               "xtable","pBrackets","Hmisc","ri2","ggpubr", "stargazer", "Rmisc","wesanderson", "gridExtra","ggmosaic",
-              "vcd", "plyr", "ggannotate","scales", "fastDummies","gt", "MASS", "modelsummary", "nnet")
+              "vcd", "plyr", "ggannotate","scales", "fastDummies","gt", "MASS", "modelsummary", "nnet", "margins")
 ipak(packages)
 
 # load DF
@@ -93,7 +93,7 @@ stargazer::stargazer(test,
 ## REGRESSION OF EXPERIMENT 1
 
 
-df$E3 <- if_else(df$E3 == "2", true = 1, false = 0) # 1 es cortar lazo y 0 mantenerlo
+#df$E3 <-if_else(df$E3 == "2", true = 1, false = 0) 
 df$E3 <-as.numeric(df$E3)
 
 
@@ -106,14 +106,9 @@ summary(E1M1)
 E1M1 <-glm(E3 ~ E3Treat, data = df, family = "binomial")
 E1M2 <-glm(E3 ~ E3Treat + HomoIndex, data = df, family = "binomial")
 E1M3 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat), data = df, family = "binomial")
-E1M4 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod, data = df, family = "binomial")
-E1M5 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec, data = df, family = "binomial")
-E1M6 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod, data = df, family = "binomial")
-E1M7 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df, family = "binomial")
 
 
-
-E3agree <-stargazer(E1M1, E1M2, E1M3,
+E1RegBal <-stargazer(E1M1, E1M2, E1M3,
                     title = "Social media Broke ties probabilities",
                     dep.var.caption = "Social media unfollow probabilities",
                     dep.var.labels = c("Model 1", "Model 2", "Model 3"),
@@ -131,7 +126,16 @@ E3agree <-stargazer(E1M1, E1M2, E1M3,
 
 ## Marginal effects
 
+
+
 ## Unbalanced variables
+
+E1M5 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod, data = df, family = "binomial")
+E1M6 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec, data = df, family = "binomial")
+E1M7 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod, data = df, family = "binomial")
+E1M8 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df, family = "binomial")
+
+E1RegNoBal <-stargazer::stargazer(E1M5,E1M6,E1M7,E1M8, out = "Results/Tables/E1_no_balanced.html")
 
 
 ##################
@@ -184,58 +188,33 @@ stargazer::stargazer(lm1, glm1, lm2, glm2, lm3, glm3,
 
 # Regresion with unbalanced covariates
 
+lm4 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod, data = df)
+lm5 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec, data = df)
+lm6 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod, data = df)
+lm7 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df)
 
-## Experiment 2 ##
-
-## Mantain or broke ties ##
-
-
-
-# Regresion model
-
-df$E3 <-as.factor(df$E3)
-E3M1 <-glm(E3 ~ E3Treat, data = df, family = "binomial")
-E3M2 <-glm(E3 ~ E3Treat + HomoIndex, data = df, family = "binomial")
-E3M3 <-glm(E3 ~ E3Treat + HomoIndex + DigitIndex, data = df, family = "binomial")
-E3M4 <-glm(E3 ~ E3Treat + HomoIndex + DigitIndex + AgeRecod, data = df, family = "binomial")
-E3M5 <-glm(E3 ~ E3Treat + HomoIndex + DigitIndex + AgeRecod + EducRec, data = df, family = "binomial")
-E3M6 <-glm(E3 ~ E3Treat + HomoIndex + DigitIndex + AgeRecod + EducRec + GenRecod, data = df, family = "binomial")
-E3M7 <-glm(E3 ~ E3Treat + HomoIndex + DigitIndex + AgeRecod + EducRec + GenRecod + ideologia, data = df, family = "binomial")
+glm4 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod, data = df)
+glm5 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec, data = df)
+glm6 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod, data = df)
+glm7 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df)
 
 
-# Logistic regression with balanced covariates
-
-summary(E3M1)
-
-E3ReBa <-stargazer(E3M1, E3M2, E3M3,
-          title = "Probabilidad de romper lazos sociales por RRSS, con covariables balanceadas",
-          dep.var.caption = "Probabilidad de ruptura",
-          dep.var.labels = c("Modelo 1", "Modelo 2", "Modelo 3"),
-          covariate.labels = c("Lazo Fuerte - Validado", "Lazo Débi - Desinformación", "Lazo Fuerte - Validado",
-                               "Pertenencia a cámaras de eco", "Ciudadanía Digital", "Constante"),
-          star.cutoffs = c(0.05, 0.01, 0.001),
-          column.sep.width = "1pt",
-          notes.label = "Niveles de significancia",
-          type = "latex",
-          out = "Results/Tables/E3-balanced.html")
+E2RegNoBal <-stargazer::stargazer(lm4, glm4, lm5, glm5, lm6, glm6, lm7, glm7,
+                                  title = "Experiment 2: Anger levels by treatment with controls",
+                                  dep.var.caption = "Anger levels",
+                                  covariate.labels = c("T1: Like-Minded", "T2: Opposite", "High Eco Chamber", "High Digital Citizenship",
+                                                       "30 to 04 years","41 to 65 years", "+66 Years", "Media", "Postgrado","Sin estudios",
+                                                       "Superior", "Masculino", "Otro genero","Center wing", "Right-Wing", "Left Wing",
+                                                       "Like-Minded * High EcoChamber","Opposite* High EcoChamber","Like-minded*High Digit. Citizen", 
+                                                       "Opposite*High Digit.citizen", "Constant"),
+                                  star.cutoffs = c(0.05, 0.01, 0.001),
+                                  column.sep.width = "1pt",
+                                  notes.label = "Significance levels",
+                                  type = "html",
+                                  out ="Results/Tables/E2Reg_no_balanced.html")
 
 
-# Logistic regression with unbalanced covariates
 
-E3ReUn <-stargazer(E3M1, E3M2, E3M3,E3M4, E3M5, E3M6, E3M7,
-          title = "Probabilidad de romper lazos sociales por RRSS, con covariables balanceadas y sin balancear",
-          dep.var.caption = "Probabilidad de ruptura",
-          dep.var.labels = c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4", "Modelo 5"),
-          covariate.labels = c("Lazo Fuerte - Validado", "Lazo Débil - Desinformación", "Lazo Débil - Validado",
-                               "Pertenencia a cámaras de eco", "Ciudadanía digital", "18 a 29 años", "30 a 40 años",
-                               "41 a 65 años","Educación Media", "Postgrado", "Sin Estudios",
-                               "Educación Superior", "Masculino", "Otros géneros", "Derecha", "Izquierda",
-                               "Ninguna ideología","Constante"),
-          column.sep.width = "1pt",
-          star.cutoffs = c(0.05, 0.01, 0.001),
-          notes.label = "Niveles de significancia",
-          type = "latex",
-          out = "Results/Tables/E3-unbalanced.html")
 
 
 
