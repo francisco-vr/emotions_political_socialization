@@ -19,7 +19,7 @@ ipak <- function(pkg){
 packages <- c("tidyverse","dplyr","haven","ggplot2","readxl","summarytools", "patchwork","stringr",
               "tidyr","kableExtra","psych", "MASS", "foreign", "data.table","gtools","lubridate","AER",
               "xtable","pBrackets","Hmisc","ri2","ggpubr", "stargazer", "Rmisc","wesanderson", "gridExtra","ggmosaic",
-              "vcd", "plyr", "ggannotate","scales", "fastDummies","gt", "MASS", "modelsummary", "nnet", "margins")
+              "vcd", "plyr", "ggannotate","scales", "fastDummies","gt", "MASS", "modelsummary", "nnet", "margins", "socviz")
 ipak(packages)
 
 # load DF
@@ -30,16 +30,23 @@ df <-readRDS("data/Final Data/DF-final.RDS")
 
 df <-dplyr::select(df, AgeRecod:ideologia,E1, E1Treat, E3Treat:E3Sad, HomoIndex,DigitIndex)
 
+df <-df[!(df$GenRecod=="Otro" | df$EducRec=="Sin Estudios"),] #eliminate "others" in genre and "withoutstudies" due to very small numbers of cases
+
+df <-mutate(df, EducRec = dplyr::recode(df$EducRec,"Básica" = "1", "Media" = "1", "Superior" = "2", "Postgrado" = "3"))
+
+table(df$EducRec)
+
 
 ### CREATE BASE VARIABLES
 
 
-df$GenRecod <-relevel(as.factor(df$GenRecod), ref = "Femenino")
-df$AgeRecod <-relevel(as.factor(df$AgeRecod), ref = "18 a 29 años")
-df$ideologia <-relevel(as.factor(df$ideologia), ref = "centro")
-df$IncomeRecod <-relevel(as.factor(df$IncomeRecod), ref = "Menos de $224.000")
-df$E3Treat <-relevel(as.factor(df$E3Treat), ref = "Conocido-Misinfo")
-df$E1Treat <-relevel(as.factor(df$E1Treat), ref = "Control")
+df$GenRecod <-relevel(factor(df$GenRecod), ref = "Femenino")
+df$AgeRecod <-relevel(factor(df$AgeRecod), ref = "18 a 29 años")
+df$ideologia <-relevel(factor(df$ideologia), ref = "centro")
+df$IncomeRecod <-relevel(factor(df$IncomeRecod), ref = "Menos de $224.000")
+df$E3Treat <-relevel(factor(df$E3Treat), ref = "Conocido-Misinfo")
+df$E1Treat <-relevel(factor(df$E1Treat), ref = "Control")
+df$EducRec <-relevel(factor(df$EducRec), ref = "1")
 
 
 #Falta educación que ay que reordenar
@@ -58,7 +65,7 @@ df$E1Treat <-relevel(as.factor(df$E1Treat), ref = "Control")
 
 # Relevel
 
-df$ideologia<- factor(df$ideologia, levels = c("Ninguno", "centro",  "Derecha", "Izquierda" ))
+df$ideologia<- factor(df$ideologia, levels = c("centro", "Ninguno", "Derecha", "Izquierda" ))
 df$AgeRecod<- factor(df$AgeRecod, levels = c("18 a 29 años", "30 a 40 años", "41 a 65 años", "+66 años"))
 df$IncomeRecod<- factor(df$IncomeRecod, levels = c("Menos de $224.000",  "Entre $224.001 - $448.000", "Ente $448.001 y $1.000.000", "Entre $1.000.001 - $3.000.000" ,
                                                    "Más de $3.000.000"))
@@ -71,7 +78,7 @@ df$IncomeRecod<- factor(df$IncomeRecod, levels = c("Menos de $224.000",  "Entre 
 ## Experiment 1 ##n
 ##################
 
-test <-multinom(E3Treat ~ HomoIndex + DigitIndex + GenRecod + AgeRecod + IncomeRecod + ideologia, data = df)
+test <-multinom(E3Treat ~ HomoIndex + DigitIndex + GenRecod + AgeRecod + IncomeRecod + ideologia + EducRec, data = df)
 
 summary(test)
 
@@ -79,10 +86,10 @@ stargazer::stargazer(test,
                      title = "Experiment 1: Balanced test to check",
                      dep.var.caption = "Probability",
                      dep.var.labels = c("Strong Tie/Validated", "Weak Tie/Misinformation", "Weak Tie/Validated"),
-                     covariate.labels = c("High Echo Chamber", "High Digital Citizenship", "Men", "Other", "30 to 40 years",
+                     covariate.labels = c("High Echo Chamber", "High Digital Citizenship", "Men", "30 to 40 years",
                                           "41 to 65 years", "+65 years", "Low income", "Low-mid",
                                           "Mid-High income","Highest", "Center wing", "Right-Wing","Left-wing",
-                                          "Constant"),
+                                          "Undergraduate","Graduate","Constant"),
                      star.cutoffs = c(0.05, 0.01, 0.001),
                      column.sep.width = "10pt",
                      notes.label = "Significance levels",
@@ -104,7 +111,7 @@ table(df$E3)
 summary(E1M1)
 
 E1M1 <-glm(E3 ~ E3Treat, data = df, family = "binomial")
-E1M2 <-glm(E3 ~ E3Treat + HomoIndex, data = df, family = "binomial")
+E1M2 <-glm(E3 ~ E3Treat + HomoIndex + DigitIndex, data = df, family = "binomial")
 E1M3 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat), data = df, family = "binomial")
 
 
@@ -116,7 +123,7 @@ E1RegBal <-stargazer(E1M1, E1M2, E1M3,
                                          "High Eco chamber", "High Digital Citizenship", "Strong Tie \\ Misinfo * High Eco Chamber",
                                          "Strong Tie \\ Validated * High Eco Chamber", "Weak Tie \\ Validated * High EcoChamber",
                                           "Strong Tie\\ Misinfo * High Dig. citizen", "Strong Tie \\Validated * High Dig. Citizen",
-                                        "Weak Tie \\ Validated* High Digit. Citizen", "Constante"),
+                                        "Weak Tie \\ Validated* High Digit. Citizen", "Constant"),
                     star.cutoffs = c(0.05, 0.01, 0.001),
                     column.sep.width = "1pt",
                     notes.label = "Significance levels",
@@ -126,16 +133,137 @@ E1RegBal <-stargazer(E1M1, E1M2, E1M3,
 
 ## Marginal effects
 
+summary(E1M3)
 
+test1 <-margins(E1M3)
+summary(test1)
+
+plot(test1)
+
+test2 <-as.tibble(summary(test1))
+prefixes <-c("E3Treat", "HomoIndex", "DigitIndex")
+test2$factor <- prefix_replace(test2$factor, "E3Treat", "Treatment:  ")
+test2 %>% dplyr::select(factor, AME, lower, upper) 
+
+
+p1 <- ggplot(data = test2, aes(x = reorder(factor, AME),
+                              y = AME, ymin = lower, ymax = upper))
+
+p1 + geom_hline(yintercept = 0, color = "green") +
+  geom_pointrange() + coord_flip() +
+  labs(x = NULL, y = "Average Marginal Effect") 
 
 ## Unbalanced variables
 
 E1M5 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod, data = df, family = "binomial")
 E1M6 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec, data = df, family = "binomial")
 E1M7 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod, data = df, family = "binomial")
-E1M8 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df, family = "binomial")
+E1M8 <-glm(E3 ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod + EducRec + GenRecod + ideologia + IncomeRecod,
+           data = df, family = "binomial")
 
 E1RegNoBal <-stargazer::stargazer(E1M5,E1M6,E1M7,E1M8, out = "Results/Tables/E1_no_balanced.html")
+
+## Marginal effects from  non-balanced
+
+summary(E1M8)
+
+noba <-margins(E1M8)
+summary(noba)
+
+plot(noba)
+noba2 <-as.tibble(summary(noba))
+
+noba2 <-noba2%>%
+  dplyr::filter(noba2$p <= 0.05)
+
+
+noba2$factor <- prefix_replace(noba2$factor,"E3Treat", "Treatment:  ")
+noba2 %>% dplyr::select(factor, AME, lower, upper) 
+
+
+p <- ggplot(data = noba2, aes(x = reorder(factor, AME),
+                              y = AME, ymin = lower, ymax = upper)) +
+  geom_hline(yintercept = 0, color = "green") +
+  geom_pointrange() + coord_flip() +
+  scale_x_discrete(labels = c("+66 Years","30 to 40 years","41 to 65 years","Male","High Eco Chamber","Left-wing")) +
+  geom_text(aes(label = round(AME,3)), 
+            size = 5,hjust = 1.8)+
+   labs(x = NULL, y = "Average Marginal Effect",
+       title = "Experiment 1 - Marginal Effects to unfollow friends on social media",
+       caption = "All variables are p < 0.05 \n Base variables: Center-wing, low Echo Chamber, Female, 18 to 29 years")+
+  theme(axis.text = element_text(size = 15, hjust = 1.2),
+        axis.title= element_text(size=16,face="bold"),
+        plot.title = element_text(size = 18, face = "bold", hjust = .5),
+        plot.caption = element_text(size = 12))+
+  guides(color = "none")
+
+
+ggsave(p, filename = "Results/Plots/E1_Marginal_effects.png",
+       dpi = 600, width = 15, height = 10)
+
+
+### eMOTIONS WITHOUT controls
+
+df$E3Treat <-relevel(factor(df$E3Treat), ref = "Conocido-Misinfo")
+
+
+MBAHappy <-rlm(E3Joy ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat), data = df)
+MBAAnger <-rlm(E3Angry ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat), data = df)
+MBASad <-rlm(E3Sad ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat), data = df)
+MBAFear <-rlm(E3Fear ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat), data = df)
+
+
+stargazer::stargazer(MBAHappy, MBAAnger, MBASad, MBAFear,
+                     title = "Experiment 1 - Emotions During social media discussions",
+                     dep.var.caption = "Robust Lineal models of Emotions",
+                     dep.var.labels = c("Hapiness", "Anger", "Sadness", "Fear"),
+                     covariate.labels = c("Stron Tie \\ Misinfo","Strong Tie \\ Arg. Validated", "Weak Tie \\ Validated",
+                                          "High Eco chamber", "High Digital Citizenship", "Strong Tie \\ Misinfo * High Eco Chamber",
+                                          "Strong Tie \\ Validated * High Eco Chamber", "Weak Tie \\ Validated * High Eco Chamber",
+                                          "Strong Tie\\ Validated * High Dig. citizen", "Strong Tie \\Misinfo * High Dig. Citizen",
+                                          "Weak Tie \\ Validated* High Digit. Citizen", "Constant"),
+                     star.cutoffs = c(0.05, 0.01, 0.001),
+                     column.sep.width = "1pt",
+                     notes.label = "Significance levels",
+                     type = "html",
+                     out = "Results/Tables/E1Reg_Emotions_Balanced.html")
+
+
+
+### EMOTIONS REGRESSION - controls
+
+df$E3Treat <-relevel(factor(df$E3Treat), ref = "Conocido-Misinfo")
+
+
+MHappy <-rlm(E3Joy ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod +
+                   EducRec + GenRecod + ideologia + IncomeRecod, data = df)
+MAnger <-rlm(E3Angry ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod +
+               EducRec + GenRecod + ideologia + IncomeRecod, data = df)
+
+MSad <-rlm(E3Sad ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod +
+             EducRec + GenRecod + ideologia + IncomeRecod, data = df)
+MFear <-rlm(E3Fear ~ E3Treat + (HomoIndex*E3Treat) + (DigitIndex*E3Treat) + AgeRecod +
+              EducRec + GenRecod + ideologia + IncomeRecod, data = df)
+
+
+stargazer::stargazer(MHappy, MAnger, MSad, MFear,
+                     title = "Experiment 1 - Emotions During social media discussions",
+                     dep.var.caption = "Robust Lineal models of Emotions",
+                     dep.var.labels = c("Hapiness", "Anger", "Sadness", "Fear"),
+                     covariate.labels = c("Strong Tie \\ Misinfo","Strong Tie \\ Arg. Validated", "Weak Tie \\ Validated",
+                                          "High Eco chamber", "High Digital Citizenship", "30 to 40 years", "41 to 65 years",
+                                          "+66 years", "Low income", "Low-mid", "Undergraduate","Graduate","Men", "Without Ideology",
+                                          "Right-Wing","Left-Wing","Low Income","Low-Mid Income","Mid-High income","Highest",
+                                          "Strong Tie \\ Misinfo * High Eco Chamber",
+                                          "Strong Tie \\ Validated * High Eco Chamber", "Weak Tie \\ Validated * High Eco Chamber",
+                                          "Strong Tie\\ Validated * High Dig. citizen", "Strong Tie \\Misinfo * High Dig. Citizen",
+                                          "Weak Tie \\ Validated* High Digit. Citizen", "Constant"),
+                     star.cutoffs = c(0.05, 0.01, 0.001),
+                     column.sep.width = "1pt",
+                     notes.label = "Significance levels",
+                     type = "html",
+                     out = "Results/Tables/E1Reg_Emotions_Unbalanced.html")
+
 
 
 ##################
@@ -144,7 +272,7 @@ E1RegNoBal <-stargazer::stargazer(E1M5,E1M6,E1M7,E1M8, out = "Results/Tables/E1_
 
 # Check variables 
 
-testE2 <-multinom(E1Treat ~ HomoIndex + DigitIndex + GenRecod + AgeRecod + IncomeRecod + ideologia, data = df)
+testE2 <-multinom(E1Treat ~ HomoIndex + DigitIndex + GenRecod + AgeRecod + IncomeRecod + ideologia + EducRec, data = df)
 
 
 summary(testE2)
@@ -152,10 +280,10 @@ summary(testE2)
 stargazer::stargazer(testE2,
                      title = "Experiment 2: Balanced test to check Digital CitizenShip and Echo Chamber membership",
                      dep.var.caption = "Experimental conditions",
-                     covariate.labels = c("High Echo Chamber", "High Digital Citizenship", "Men", "Other", "30 to 40 years",
+                     covariate.labels = c("High Echo Chamber", "High Digital Citizenship", "Men","30 to 40 years",
                                           "41 to 65 years", "+65 years", "Low income", "Low-mid",
-                                          "Mid-High income","Highest", "Center wing", "Right-Wing","Left-wing",
-                                          "Constant"),
+                                          "Mid-High income","Highest", "Center wing", "Right-Wing","Left-wing","Undergraduate",
+                                          "Graduate", "Constant"),
                      star.cutoffs = c(0.05, 0.01, 0.001),
                      column.sep.width = "10pt",
                      notes.label = "Significance levels",
@@ -182,47 +310,37 @@ stargazer::stargazer(lm1, glm1, lm2, glm2, lm3, glm3,
                      star.cutoffs = c(0.05, 0.01, 0.001),
                      column.sep.width = "1pt",
                      notes.label = "Significance levels",
-                     type = "html",
                      out = "Results/Tables/E2Reg_Balanced.html")
                      
 
 # Regresion with unbalanced covariates
 
-lm4 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod, data = df)
-lm5 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec, data = df)
-lm6 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod, data = df)
-lm7 <-lm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df)
+lm4 <-rlm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod, data = df)
+lm5 <-rlm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec, data = df)
+lm6 <-rlm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod, data = df)
+lm7 <-rlm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df)
+lm8 <-rlm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia + EducRec, data = df)
 
 glm4 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod, data = df)
 glm5 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec, data = df)
 glm6 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod, data = df)
 glm7 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia, data = df)
+glm8 <-glm(E1 ~ E1Treat + (HomoIndex*E1Treat) + (DigitIndex*E1Treat) + AgeRecod + EducRec + GenRecod + ideologia + EducRec, data = df)
 
-
-E2RegNoBal <-stargazer::stargazer(lm4, glm4, lm5, glm5, lm6, glm6, lm7, glm7,
+E2RegNoBal <-stargazer::stargazer(lm4,lm5, lm6, lm7,lm8,
                                   title = "Experiment 2: Anger levels by treatment with controls",
                                   dep.var.caption = "Anger levels",
                                   covariate.labels = c("T1: Like-Minded", "T2: Opposite", "High Eco Chamber", "High Digital Citizenship",
                                                        "30 to 04 years","41 to 65 years", "+66 Years", "Media", "Postgrado","Sin estudios",
-                                                       "Superior", "Masculino", "Otro genero","Center wing", "Right-Wing", "Left Wing",
+                                                       "Superior", "Male", "Center wing", "Right-Wing", "Left Wing",
                                                        "Like-Minded * High EcoChamber","Opposite* High EcoChamber","Like-minded*High Digit. Citizen", 
-                                                       "Opposite*High Digit.citizen", "Constant"),
+                                                       "Opposite*High Digit.citizen","Undergraduate", "Graduate","Constant"),
                                   star.cutoffs = c(0.05, 0.01, 0.001),
                                   column.sep.width = "1pt",
                                   notes.label = "Significance levels",
                                   type = "html",
                                   out ="Results/Tables/E2Reg_no_balanced.html")
 
-
-
-
-
-
-
-## Create new data frame
-
-
-finalDF <-saveRDS(finalDF, file = "Data/Analysis-Data/DF-final.RDS")
 
 
 

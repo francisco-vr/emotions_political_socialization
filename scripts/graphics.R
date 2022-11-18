@@ -429,7 +429,7 @@ E2general <-df%>%
   stat_summary(aes(label= round(..y.., 2)), fun=mean, geom="text", size=5, vjust = -1.5) +
   theme(plot.title = element_text(hjust = .5, size = 16, face = "bold"),
         plot.caption = element_text(face = "italic")) +
-  stat_compare_means(comparisons = compE1, label = "p.signif") +
+  stat_compare_means(comparisons = compE2, label = "p.signif") +
   stat_compare_means(label.y = 9) +
   theme(axis.text = element_text(size = 16),
         axis.title=element_text(size=18,face="bold"))+
@@ -456,7 +456,7 @@ E2Homo <-ggplot(data = df, mapping = aes(x = E1Treat, y = E1, fill = E1Treat)) +
        caption = "NS = No Statistical significance; * ≤.05; ** ≤.01; *** ≤.001") + 
   facet_wrap(~HomoIndex, nrow = 1, labeller = labeller(HomoIndex = c('0'="Low Eco Chamber membership",
                                                                      '1'="High Eco Chamber membership"))) +
-  stat_compare_means(comparisons = compE1, label = "p.signif") +
+  stat_compare_means(comparisons = compE2, label = "p.signif") +
   stat_compare_means(label.y = 9.2) +
   theme(axis.text = element_text(size = 16),
         axis.title=element_text(size=18,face="bold"))+
@@ -478,7 +478,7 @@ E2Digit <-ggplot(data = df, mapping = aes(x = E1Treat, y = E1, fill = E1Treat)) 
   geom_text(data = data.frame(x = 1.98226559070716, y = 7.00733768984006, 
                               label = "Wilcoxon test", DigitIndex = 0L),
             mapping = aes(x = x, y = y, label = label), size = 3.17, inherit.aes = FALSE) +
-  stat_compare_means(comparisons = compE1, label = "p.signif") +
+  stat_compare_means(comparisons = compE2, label = "p.signif") +
   stat_compare_means(label.y = 9.2) +
   labs(title = "Anger levels subset by Digital Citizenship levels",
        y = "Anger levels (Max 7)", x = "Experimental conditions",
