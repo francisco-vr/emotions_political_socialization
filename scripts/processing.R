@@ -102,11 +102,13 @@ thesis <-thesis%>%
 
 # recode self position
 
-thesis <-mutate(thesis, IdeoRec = car::recode(thesis$Ideolo_1, "1:4 = 1; 5:6 = 2; 7:9 = 3; 0 = 3")) 
+thesis <-dplyr::mutate(thesis, IdeoRec = car::recode(thesis$Ideolo_1, "1:2 = 1; 3:4 = 2; 5:6 = 3; 7:8 = 4; 9:10 = 5")) 
 
 # Edit in final DF. "20" shouldn't exist
-thesis <-mutate(thesis, IdeoRec = dplyr::recode(thesis$IdeoRec, "1" = "Izquierda","2" = "centro","3" = "Derecha"))
+thesis <-dplyr::mutate(thesis, IdeoRec = dplyr::recode(thesis$IdeoRec, "1" = "E. Izquierda","2" = "Centro-Izquierda","3" = "Centro",
+                                                       "4" = "Centro-Derecha", "9" = "E. Derecha"))
 table(thesis$IdeoRec)
+
 
 thesis<-mutate(thesis, identity = dplyr::recode(thesis$IdePol, "0" = "Ninguno", "1" = ''))
 
